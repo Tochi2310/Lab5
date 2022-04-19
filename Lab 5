@@ -1,0 +1,359 @@
+package lab05;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Scanner;
+//Isaiah Dickerson & Tochi Onwuasoanya
+public class Lab5Test {
+	public static int size= 0;
+	public static int height = 0;
+	public static Node root;
+	//creates node
+	public static class Node{
+		String s;
+		Node left;
+		Node right;
+		//Node with string value
+		Node(String s){
+			this.s =s;
+		}
+		//check if a node is an internal node or a leaf node
+		boolean isLeaf() {
+			//check if a node is a leaf by checking if the children are null
+			Boolean val  = left == null && right == null;
+
+			return val;
+		}
+	}
+	//trie object with root
+	public static class Trie{
+		public static Node root;	
+		
+	}
+	 
+	 
+	
+	static ArrayList trieElements = new ArrayList();
+	
+	public static void insert (Trie t, String s){
+		trieElements.add(s);
+        t.root = insertRecursive(t.root, s, 0);
+        size++;
+    }
+	
+    private static Node insertRecursive (Node n, String st, int index){
+    	//if the trie is null, then add one node containing the string
+        if (n == null){
+            n = new Node(st);
+            return n;
+        }
+        //if the node is a leaf, then add to the trie
+        else if (n.isLeaf()==true){
+            n = addNode (n, n.s, st);
+        }
+        //these two if statements read the st string and move it accordingly
+        //also increment the index 
+        else if (st.charAt(index) == '1'){
+            n.right = insertRecursive(n.right, st, ++index);
+        }
+        else if (st.charAt(index) == '0'){
+            n.left = insertRecursive(n.left, st, ++index);
+        }
+        //return the node
+        return n;
+    }
+    
+    public static Node addNode(Node n, String stringOne, String stringTwo) {
+    	//when two nodes are the same, move the node down, adding a internal node (empty s value)
+    	//until the program is done parsing the string
+    	//0 means a left move, and 1 means a right move
+    	//recursive
+    	if(stringOne.equals(stringTwo)) {
+    		for(int i = 0; i<stringOne.length();i++) {
+    			if(stringOne.charAt(i)=='0') {
+    				n = new Node("\0");
+    	    		n.left = addNode(n.left,stringOne,stringTwo);
+    			}
+    			if(stringOne.charAt(i)=='1') {
+    				n = new Node("\0");
+                    n.right = addNode(n.right, stringOne, stringTwo);
+                }
+    			}
+    		
+    		}
+    	/**
+    	 * assuming strings are the same length (as stated in the lab write up)
+    	 * when the nodes diverge, the greater one is assigned to the right and the lesser one
+    	 * to the left
+    	 * an internal node is created and the two child nodes are assigned accordingly
+    	 * if stringOne>stringTwo when they diverge,        
+    	 *                 (internal node)
+    	 *                    /       \ 
+    	 *                   /         \
+    	 *              stringTwo	StringOne
+    	 */
+    		else {
+    			for(int i = 0; i<stringOne.length();i++) {
+    				for(int j = 0; j<stringTwo.length();j++) {
+    					if (stringOne.charAt(i) > stringTwo.charAt(j)){
+    	                    n = new Node("\0");
+    	                    n.left = new Node(stringTwo);
+    	                    n.right = new Node(stringOne);
+    	                }
+    	                //else, do the opposite
+    	                else {
+    	                    n = new Node("\0");
+    	                    n.left = new Node(stringOne);
+    	                    n.right = new Node (stringTwo);
+    	                }	
+    				}
+    			}
+    			
+    		}
+    	return n;
+
+    		
+    	}
+  
+    public static void trieToList(Trie t) {
+    	//create String arrayList
+    	ArrayList<String> list = new ArrayList();
+    	//call addToList on t.root
+    	addToList(t.root,list);
+    	//print out values 
+    	System.out.println("Trie List");
+    	for(int i = 0; i<size;i++) {
+    	
+    		System.out.print(list.get(i)+" ");
+    	}
+    	System.out.println();
+    	
+//    	create arraylist
+//    	use add to list(t.root,list)
+    	
+    	
+    }
+    public static ArrayList<String> addToList(Node n, ArrayList<String>lis) {
+    	//if the node is null return the lis
+    	if(n == null)
+    		return lis;
+    	//when the node is a leaf, add the string value to the list
+    	if(n.isLeaf()) {
+    		lis.add(n.s);
+    	}
+    	//if the left value isn't null, recursively call addToList on left child
+    	if(n.left!=null)
+    		addToList(n.left,lis);
+    	//if the right value isn't null, recursively call addToList on right child
+
+    	if(n.right!=null)
+    		addToList(n.right,lis);
+    	return lis;
+    }
+    static void print(Node n){
+    	//if the node is empty, return
+          
+        if (n == null)
+            return;
+          //when the node found is a lead, print it and newline
+        if (n.isLeaf()){
+            System.out.print(n.s + "\n");
+            return;
+            
+        }
+        //if the left child isn't null, recursively run print
+        if (n.left != null) {
+            print(n.left);
+        }
+              
+        //if the right child isn't null, recursively run print
+        if (n.right != null) {
+            print(n.right);
+        }
+    }
+      
+  
+    
+   //return size of trie
+    public static int size(Trie t) {
+    	return size;
+    }
+    
+    //make height compatible with trie type
+    public static int height(Trie t) {
+    	return height(t.root);
+    }
+    
+    //find the longest path in the trie and add one to it
+	public static int height(Node n){
+		if (n == null)
+			return 0;
+	    else{
+	    	//two int variables being the height of the left and right subtrees
+	    	int leftSubtree = height(n.left);
+	        int rightSubtree = height(n.right);
+	  
+	        //return the deepest subtree and add one to account for the node
+	    if (leftSubtree > rightSubtree)
+	    	return (leftSubtree + 1);
+	    else
+	    	return (rightSubtree + 1);
+	    }
+	}
+	
+	
+	//rightmost leaf node will be the biggest value
+	public static String largest(Node n) {
+		Node curr = n;
+		//move right and right until you reach a leaf
+		while(curr.right!=null) {
+			curr = curr.right;
+		}
+		return curr.s;
+	}
+	
+	
+	//leftmost leaf node will be the smallest value
+
+	public static String smallest(Node n) {
+		Node curr = n;
+		//move left and left until you reach a leaf
+		while(curr.left!=null) {
+			curr = curr.left;
+		}
+		return curr.s;
+	}
+	
+	
+	
+	
+	public static String search(Trie t, String s) {
+		//create an arrayList and call searchRecursive
+		ArrayList <Node> nodeList = new ArrayList();
+		Node n = searchRecursive(t.root,s,0);
+		//when the node is a leaf, return the string value
+		if(n.isLeaf()) {
+			return(n.s);
+		}else {
+        //call findNodes
+		findNodes(n,nodeList);
+		//create an int array the same size of the arrayList
+        int[] nodes = new int[nodeList.size()];
+        //parse the strings in the arrayList and add to integer array
+		for(int i = 0; i<nodeList.size();i++) {
+			nodes[i] = Integer.parseInt(nodeList.get(i).s);
+		}
+		
+		int max = 2147483647;
+		int index = 0;
+        int refString = Integer.parseInt(s);
+        //find the closest value to the string
+        
+        for(int i = 0; i<nodes.length;i++) {
+        	int difference = Math.abs(nodes[i]-refString);
+        	if (max > difference){
+                max = difference;
+                index = i;
+            }
+        }
+		
+
+        return "LPM: "+nodes[index];
+		}
+	}
+    
+	
+	public static Node searchRecursive(Node n, String s, int index) {
+		//return if the string is the same as n.s, or if it is the same size as the index, or if the left or right child is null
+		if(n.s.equals(s)||s.length()==index||n.left==null||n.right==null) {
+			return n;
+		}
+		//when the character at the index is 0, recursively run on left child
+		for(index = 0; index<s.length();index++) {
+			if(s.charAt(index)=='0') {
+				searchRecursive(n.left, s, index);
+		//when the character at the index is 1, recursively run on right child
+
+			}
+			if(s.charAt(index)=='1') {
+				searchRecursive(n.right,s,index);
+			}
+		}
+		return n;
+	}
+
+    private static void findNodes (Node n, ArrayList<Node> list){
+    	//traverse the tree for leaves, add to list when found
+    	if(n==null) {
+    		return;
+    	}
+    	if(n.isLeaf()) {
+    		list.add(n);
+    	}
+    	//recursively call for the left and right children
+    	if(n.left!=null) {
+    		findNodes(n.left,list);
+
+    	}
+    	if(n.right!=null) {
+        	findNodes(n.right,list);
+
+    	}
+    	
+    	
+    }
+    
+    public static void main(String args[]) throws FileNotFoundException {
+    	Trie t = new Trie();
+    	File file = new File(args[0]);
+        Scanner in = new Scanner(file);
+        while(in.hasNextLine()) {
+        	//splits the file input into command and string (when applicable)
+        	String[] arr = in.nextLine().split(" ");
+            String commands = arr[0];
+            //executes methods based on file input
+            
+            if(commands.equals("insert")) {
+                String string = arr[1];
+            	insert(t,string);
+            }
+            if(commands.equals("print")) {
+            	print(t.root);
+            	
+            }
+            if(commands.equals("size")) {
+            	System.out.print("size ");
+            	System.out.print(size(t));
+            	System.out.println();
+            }
+            if(commands.equals("height")) {
+            	System.out.print("height ");
+            	System.out.print(height(t));
+            	System.out.println();
+
+            }
+            if(commands.equals("largest")) {
+            	System.out.print("largest ");
+            	System.out.print(largest(t.root));
+            	System.out.println();
+
+            }
+            if(commands .equals("smallest")) {
+            	System.out.print("smallest ");
+            	System.out.print(smallest(t.root));
+            	System.out.println();
+
+            }
+            if(commands .equals("search")) {
+            	String input = arr[1];
+            	System.out.print(search(t,input));
+            	System.out.println();
+
+            }
+        }
+        
+        //lastly print out the trie list
+        trieToList(t);
+    }
+}
